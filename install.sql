@@ -27,12 +27,12 @@ CREATE TABLE users (
     region text,
     postal_code text,
     country text,
-    pronoun_id integer,
+    pronouns_id integer,
     occupation text,
     employer text,
     CONSTRAINT users_pk PRIMARY KEY (user_id),
-    CONSTRAINT users_pronoun_id_fk FOREIGN KEY (pronoun_id)
-        REFERENCES pronouns (pronoun_id) MATCH SIMPLE
+    CONSTRAINT users_pronouns_id_fk FOREIGN KEY (pronouns_id)
+        REFERENCES pronouns (pronouns_id) MATCH SIMPLE
 );
 
 CREATE INDEX users_email_idx ON users (email);
@@ -62,7 +62,7 @@ CREATE TABLE players (
     is_dm boolean NOT NULL DEFAULT FALSE,
     char_full_name text,
     char_short_name text,
-    char_pronoun_id integer,
+    char_pronouns_id integer,
     player_name text,
     icon_id integer NOT NULL,
     color text NOT NULL,
@@ -70,8 +70,8 @@ CREATE TABLE players (
     CONSTRAINT players_user_id_fk FOREIGN KEY (user_id)
         REFERENCES users (user_id) MATCH SIMPLE
         ON DELETE SET NULL,
-    CONSTRAINT players_char_pronoun_id_fk FOREIGN KEY (char_pronoun_id)
-        REFERENCES pronouns (pronoun_id) MATCH SIMPLE,
+    CONSTRAINT players_char_pronouns_id_fk FOREIGN KEY (char_pronouns_id)
+        REFERENCES pronouns (pronouns_id) MATCH SIMPLE,
     CONSTRAINT players_icon_id_fk FOREIGN KEY (icon_id)
         REFERENCES icons (icon_id) MATCH SIMPLE
 );
