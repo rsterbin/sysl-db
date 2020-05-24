@@ -19,6 +19,7 @@ INSERT INTO pronouns (subject, object, possessive, determiner, reflexive) VALUES
 CREATE TABLE users (
     user_id serial NOT NULL,
     email text NOT NULL,
+    password text,
     first text,
     last text,
     address1 text,
@@ -31,6 +32,7 @@ CREATE TABLE users (
     occupation text,
     employer text,
     CONSTRAINT users_pk PRIMARY KEY (user_id),
+    CONSTRAINT users_email_uq UNIQUE (email),
     CONSTRAINT users_pronouns_id_fk FOREIGN KEY (pronouns_id)
         REFERENCES pronouns (pronouns_id) MATCH SIMPLE
 );
@@ -41,6 +43,8 @@ CREATE TABLE games (
     game_id serial NOT NULL,
     name text NOT NULL,
     user_id integer NOT NULL,
+    slug text NOT NULL,
+    uuid text NOT NULL,
     CONSTRAINT games_pk PRIMARY KEY (game_id),
     CONSTRAINT games_user_id_fk FOREIGN KEY (user_id)
         REFERENCES users (user_id) MATCH SIMPLE
@@ -58,6 +62,7 @@ CREATE TABLE icons (
 
 CREATE TABLE players (
     player_id serial NOT NULL,
+    game_id integer NOT NULL,
     user_id integer,
     is_dm boolean NOT NULL DEFAULT FALSE,
     char_full_name text,
@@ -67,22 +72,31 @@ CREATE TABLE players (
     icon_id integer NOT NULL,
     color text NOT NULL,
     CONSTRAINT players_pk PRIMARY KEY (player_id),
+    CONSTRAINT players_game_id_fk FOREIGN KEY (game_id)
+        REFERENCES games (game_id) MATCH SIMPLE
+        ON DELETE CASCADE,
     CONSTRAINT players_user_id_fk FOREIGN KEY (user_id)
         REFERENCES users (user_id) MATCH SIMPLE
         ON DELETE SET NULL,
     CONSTRAINT players_char_pronouns_id_fk FOREIGN KEY (char_pronouns_id)
-        REFERENCES pronouns (pronouns_id) MATCH SIMPLE,
+        REFERENCES pronouns (pronouns_id) MATCH SIMPLE
+        ON DELETE SET NULL,
     CONSTRAINT players_icon_id_fk FOREIGN KEY (icon_id)
         REFERENCES icons (icon_id) MATCH SIMPLE
 );
 
 CREATE TABLE game_events (
     event_id serial NOT NULL,
-    name text NOT NULL,
+    game_id integer NOT NULL,
+    full_name text NOT NULL,
+    short_name text NOT NULL,
     icon_id integer NOT NULL,
     color text NOT NULL,
     dm_only boolean NOT NULL DEFAULT FALSE,
     CONSTRAINT game_events_pk PRIMARY KEY (event_id),
+    CONSTRAINT game_events_game_id_fk FOREIGN KEY (game_id)
+        REFERENCES games (game_id) MATCH SIMPLE
+        ON DELETE CASCADE,
     CONSTRAINT game_events_icon_id_fk FOREIGN KEY (icon_id)
         REFERENCES icons (icon_id) MATCH SIMPLE
 );
@@ -104,7 +118,7 @@ CREATE TABLE sponsors (
 CREATE TABLE sponsored_events (
     sponsor_id integer NOT NULL,
     event_id integer NOT NULL,
-    player_id integer NOT NULL,
+    player_id integer,
     donation decimal(12,2) NOT NULL,
     CONSTRAINT sponsored_events_pk PRIMARY KEY (sponsor_id, event_id),
     CONSTRAINT sponsored_events_sponsor_id_fk FOREIGN KEY (sponsor_id)
